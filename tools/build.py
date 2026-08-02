@@ -236,6 +236,7 @@ def build_nav(chapters: list[dict]) -> str:
         parts[-1][2].append(ch)
 
     rows = []
+    first_num = chapters[0]["meta"]["number"] if chapters else ""
     for pnum, ptitle, chs in parts:
         rows.append(
             f'<li class="nav-part"><span class="nav-part-num">{html.escape(pnum)}</span>'
@@ -243,8 +244,9 @@ def build_nav(chapters: list[dict]) -> str:
         )
         for ch in chs:
             n = ch["meta"]["number"]
+            aria_curr = ' aria-current="page"' if n == first_num else ''
             rows.append(
-                f'<li class="nav-ch"><a href="#{n}" data-ch="{n}">'
+                f'<li class="nav-ch"><a href="#{n}" data-ch="{n}"{aria_curr}>'
                 f'<span class="nav-num">{n}</span>'
                 f'<span class="nav-title">{html.escape(ch["meta"]["title"])}</span></a></li>'
             )
@@ -290,8 +292,9 @@ def build_articles(chapters: list[dict]) -> str:
         tagline = (
             f'<p class="ch-tagline">{html.escape(m["tagline"])}</p>' if m.get("tagline") else ""
         )
+        hidden_attr = ' hidden' if i > 0 else ''
         out.append(
-            f'<article class="ch" id="ch-{m["number"]}" data-ch="{m["number"]}" hidden>'
+            f'<article class="ch" id="ch-{m["number"]}" data-ch="{m["number"]}"{hidden_attr}>'
             f'<header class="ch-head">'
             f'<p class="eyebrow">{html.escape(m.get("part", ""))} — {html.escape(m.get("part_title", ""))}</p>'
             f'<h1><span class="ch-num" aria-hidden="true">{m["number"]}</span>'
@@ -306,14 +309,15 @@ def build_articles(chapters: list[dict]) -> str:
 
 def build_rails(chapters: list[dict]) -> str:
     out = []
-    for ch in chapters:
+    for i, ch in enumerate(chapters):
         items = "".join(
             f'<li class="lvl{h["level"]}"><a href="#{ch["meta"]["number"]}/{h["id"]}">'
             f'{html.escape(h["text"])}</a></li>'
             for h in ch["outline"]
         )
+        hidden_attr = ' hidden' if i > 0 else ''
         out.append(
-            f'<div class="rail-set" data-ch="{ch["meta"]["number"]}" hidden>'
+            f'<div class="rail-set" data-ch="{ch["meta"]["number"]}"{hidden_attr}>'
             f'<p class="rail-label">On this page</p><ul class="rail-list">{items}</ul></div>'
         )
     return "\n".join(out)

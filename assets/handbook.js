@@ -347,4 +347,7 @@
   /* ----------------------------------------------------------------- boot */
   const h = parseHash();
   show(h.ch, h.id, false);
+  if (!location.hash) {
+    history.replaceState(null, '', '#' + h.ch);
+  }
 })();
